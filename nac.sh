@@ -5,6 +5,7 @@
 dhclient -r
 pkill dhcpcd
 modprobe br_netfilter
+
 if [ "$1" == "-h" ] ; then
 	echo -e "Info: `basename $0`\n\n[-h or --help]\t\t+Display this help information\n[-v or --version]\t+Display version information\n[-a or --about]\t\t+Display usage information"
 	exit 0
@@ -14,7 +15,7 @@ if [ "$1" == "-v" ] ; then
 	exit 0
 fi
 if [ "$1" == "--version" ] ; then
-	echo -e "Version: `basename $0` 2.92 Automatic\nMatt E\nKPMG LLP 2014"
+	echo -e "Version: `basename $0` 3.0 - Jeremy/Chet Edits to Matt E's Original Script"
 	exit 0
 fi
 if [ "$1" == "--help" ] ; then

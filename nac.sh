@@ -7,7 +7,7 @@ pkill dhcpcd
 modprobe br_netfilter
 
 if [ "$1" == "-h" ] ; then
-	echo -e "Info: `basename $0`\n\n[-h or --help]\t\t+Display this help information\n[-v or --version]\t+Display version information\n[-a or --about]\t\t+Display usage information"
+	echo -e "Info: `basename $0`\n\n[-h or --help]\t\t+Display this help information\n[-v or --version]\t+Display version information\n[-a or --about]\t\t+Display usage information\n[--phone]\t\t+Bypass IP Phone"
 	exit 0
 fi
 if [ "$1" == "-v" ] ; then
@@ -31,12 +31,10 @@ if [ "$1" == "--about" ] ; then
 	exit 0
 fi
 
-if ["$1" == "https"] ; then
-	$dport == "443"
-fi
+dport=443
 
-if ["$1" == "sip"] ; then
-	$dport == "5061"
+if [ "$1" == "--phone" ] ; then
+	dport=5061
 fi
 
 service network-manager stop
@@ -81,7 +79,7 @@ echo "Resetting Connection"
 mii-tool -r $COMPINT
 mii-tool -r $SWINT
 
-echo "Listening for Traffic"
+echo "Listening for Traffic on port $dport"
 tcpdump -i $COMPINT -s0 -w /boot.pcap -c1 tcp dst port $dport #moving to look at either https or sip traffic
 echo
 
@@ -123,6 +121,8 @@ echo "Re-enabling traffic flow; monitor ports for lockout"
 arptables -D OUTPUT -j DROP
 iptables -D OUTPUT -j DROP
 
+echo
+echo iptables -L -t nat
+echo 
 echo "You're all set! Happy Hunting!"
 
-iptables -L -t nat

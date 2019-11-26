@@ -31,6 +31,14 @@ if [ "$1" == "--about" ] ; then
 	exit 0
 fi
 
+if ["$1" == "https"] ; then
+	$dport == "443"
+fi
+
+if ["$1" == "sip"] ; then
+	$dport == "5061"
+fi
+
 service network-manager stop
 echo "net.ipv6.conf.all.disable_ipv6 = 1" > /etc/sysctl.conf
 sysctl -p
@@ -74,15 +82,15 @@ mii-tool -r $COMPINT
 mii-tool -r $SWINT
 
 echo "Listening for Traffic"
-tcpdump -i $COMPINT -s0 -w /boot.pcap -c1 tcp dst port 443 #We pcap any kerberos traffic should be some in Windows land
+tcpdump -i $COMPINT -s0 -w /boot.pcap -c1 tcp dst port $dport #moving to look at either https or sip traffic
 echo
 
 echo "Processing packet and setting veriables COMPMAC GWMAC COMIP"
-COMPMAC=`tcpdump -r /boot.pcap -nne -c 1 tcp dst port 443 | awk '{print $2","$4$10}' | cut -f 1-4 -d.| awk -F ',' '{print $1}'`
+COMPMAC=`tcpdump -r /boot.pcap -nne -c 1 tcp dst port $dport | awk '{print $2","$4$10}' | cut -f 1-4 -d.| awk -F ',' '{print $1}'`
 echo $COMPMAC
-GWMAC=`tcpdump -r /boot.pcap -nne -c 1 tcp dst port 443 | awk '{print $2","$4$10}' |cut -f 1-4 -d.| awk -F ',' '{print $2}'`
+GWMAC=`tcpdump -r /boot.pcap -nne -c 1 tcp dst port $dport | awk '{print $2","$4$10}' |cut -f 1-4 -d.| awk -F ',' '{print $2}'`
 echo $GWMAC
-COMIP=`tcpdump -r /boot.pcap -nne -c 1 tcp dst port 443 | awk '{print $3","$4$10}' |cut -f 1-4 -d.| awk -F ',' '{print $3}'`
+COMIP=`tcpdump -r /boot.pcap -nne -c 1 tcp dst port $dport | awk '{print $3","$4$10}' |cut -f 1-4 -d.| awk -F ',' '{print $3}'`
 echo $COMIP
 echo "Going Silent"
 arptables -A OUTPUT -j DROP

@@ -31,10 +31,10 @@ if [ "$1" == "--about" ] ; then
 	exit 0
 fi
 
-dport=443
+LPORT=443
 
 if [ "$1" == "--phone" ] ; then
-	dport=5061
+	LPORT=5061
 fi
 
 service network-manager stop
@@ -80,7 +80,7 @@ mii-tool -r $COMPINT
 mii-tool -r $SWINT
 
 echo "Listening for Traffic on port $dport"
-tcpdump -i $COMPINT -s0 -w /boot.pcap -c1 tcp dst port $dport #moving to look at either https or sip traffic
+tcpdump -i $COMPINT -s0 -w /boot.pcap -c1 tcp dst port $LPORT #moving to look at either https or sip traffic
 echo
 
 echo "Processing packet and setting veriables COMPMAC GWMAC COMIP"
@@ -122,7 +122,7 @@ arptables -D OUTPUT -j DROP
 iptables -D OUTPUT -j DROP
 
 echo
-echo iptables -L -t nat
+iptables -L -t nat
 echo 
 echo "You're all set! Happy Hunting!"
 
